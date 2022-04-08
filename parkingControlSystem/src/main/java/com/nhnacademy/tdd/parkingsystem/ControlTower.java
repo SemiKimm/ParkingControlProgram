@@ -3,7 +3,12 @@ package com.nhnacademy.tdd.parkingsystem;
 import com.nhnacademy.tdd.parkingsystem.domain.Car;
 
 class ControlTower {
-    public Object manageComeIn(Car car) {
+    boolean manageComeIn(Car car) {
+        return true;
+    }
+
+    String scanCarNumber(Object number) {
         return null;
+        //TODO
     }
 }

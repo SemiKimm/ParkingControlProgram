@@ -23,13 +23,21 @@ class ControlTowerTest {
     @DisplayName("controlTower에서 차량의 들어옴을 관리한다.")
     @Test
     void manage_carComesIn() {
-        Car car = new Car();
-
-        //when(controlTower.manageComeIn(car)).thenReturn(true);
+        String carNumber = "99조 9999";
+        Car car = new Car(carNumber);
         assertThat(controlTower.manageComeIn(car)).isEqualTo(true);
-
-        verify(controlTower).manageComeIn(car);
     }
+
+    @DisplayName("차가 들어오면 번호판을 스캔한다. - 스캔해서 얻은 번호와 차량의 번호가 동일하다.")
+    @Test
+    void manage_scanCarNumber(){
+        String carNumber = "99조 9999";
+        Car car = new Car(carNumber);
+
+        assertThat(controlTower.scanCarNumber(car.getNumber()).equals(carNumber)).isTrue();
+    }
+
+
 
     @AfterEach
     void tearDown() {
