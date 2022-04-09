@@ -32,29 +32,31 @@ class ParkingSystemTest {
     @DisplayName("주차장에 차가 들어온다. -> 들어온 차에는 운전자가 있다.")
     @Test
     void comeIn() {
+        String parkingLotCode = "A-1";
         String number = "99조9999";
         String userId = "semi";
         User driver = new User(userId);
         Car car = new Car(number, driver);
 
-        when(parkingLot.enter(car)).thenReturn(driver);
+        when(parkingLot.enter(parkingLotCode, car)).thenReturn(driver);
 
-        User result = parkingSystem.comeIn(car);
+        User result = parkingSystem.comeIn(car, parkingLotCode);
 
         assertThat(result).isNotNull();
         assertThat(result.getUserId()).isEqualTo(userId);
 
-        verify(parkingLot).enter(car);
+        verify(parkingLot).enter(parkingLotCode, car);
     }
 
     @Test
     void comeIn_carIsNull_throwsIllegalArgumentException(){
+        String parkingLotCode = "A-1";
         Car car = null;
 
-        assertThatThrownBy(()->parkingSystem.comeIn(car))
+        assertThatThrownBy(()->parkingSystem.comeIn(car, parkingLotCode))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContainingAll("no car");
 
-        verify(parkingLot,never()).enter(car);
+        verify(parkingLot,never()).enter(parkingLotCode, car);
     }
 }

@@ -24,32 +24,58 @@ class ParkingLotTest {
         parkingLot = new ParkingLot(parkingSpaces, entrance);
     }
 
-    @DisplayName("주차장에 차가 들어오면 운전자가 반환된다.")
+    @DisplayName("주차장에 차가 들어오면 번호판을 인식하고 주차한다.")
     @Test
     void enter() {
+        String parkingLotCode = "A-1";
+
         String number = "99조9999";
         String userId = "semi";
         User driver = new User(userId);
         Car car = new Car(number, driver);
 
-        when(entrance.scan(car)).thenReturn(number);
+        ParkingSpace parkingSpace = new ParkingSpace(parkingLotCode, car);
 
-        User result = parkingLot.enter(car);
+        when(entrance.scan(car)).thenReturn(number);
+        when(parkingSpaces.reserveParkingSpace(parkingLotCode, car)).thenReturn(parkingSpace);
+
+        User result = parkingLot.enter(parkingLotCode, car);
 
         assertThat(result).isNotNull();
         assertThat(result.getUserId()).isEqualTo(userId);
 
         verify(entrance).scan(car);
+        verify(parkingSpaces).reserveParkingSpace(parkingLotCode,car);
+        verify(parkingSpaces).parking(number, parkingSpace);
     }
 
     @Test
-    void enter_carIsNull_throwsIllegalArgumentException(){
+    void enter_carIsNull_throwsIllegalArgumentException() {
+        String parkingLotCode = "A-1";
         Car car = null;
 
-        assertThatThrownBy(()->parkingLot.enter(car))
+        assertThatThrownBy(() -> parkingLot.enter(parkingLotCode, car))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContainingAll("no car");
 
-        verify(entrance,never()).scan(car);
+        verify(entrance, never()).scan(car);
+        verify(parkingSpaces,never()).reserveParkingSpace(parkingLotCode,car);
+    }
+
+    @Test
+    void enter_parkingLotCodeIsNull_enter_carIsNull_throwsIllegalArgumentException(){
+        String parkingLotCode = null;
+
+        String number = "99조9999";
+        String userId = "semi";
+        User driver = new User(userId);
+        Car car = new Car(number, driver);
+
+        assertThatThrownBy(() -> parkingLot.enter(parkingLotCode, car))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContainingAll("no parkingLotCode");
+
+        verify(entrance, never()).scan(car);
+        verify(parkingSpaces,never()).reserveParkingSpace(parkingLotCode,car);
     }
 }

@@ -18,14 +18,14 @@ class ParkingSpacesTest {
 
     @DisplayName("주차장에 차가 주차될때 repository 에는 차번호와 차량이 주차된 주차공간이 저장된다.")
     @Test
-    void insertAndFindByCarNumber() {
+    void parkingAndFindByCarNumber() {
         String code = "A-1";
         String number = "99조9999";
         String userId = "semi";
         User driver = new User(userId);
         Car car = new Car(number, driver);
         ParkingSpace parkingSpace = new ParkingSpace(code, car);
-        parkingSpaceRepository.insert(number, parkingSpace);
+        parkingSpaceRepository.parking(number, parkingSpace);
 
         ParkingSpace result = parkingSpaceRepository.findByCarNumber(number);
 
@@ -33,33 +33,72 @@ class ParkingSpacesTest {
     }
 
     @Test
-    void insert_carNumberIsNull_throwIllegalArgumentException() {
+    void parking_carNumberIsNull_throwIllegalArgumentException() {
         String carNumber = null;
         ParkingSpace parkingSpace = new ParkingSpace("A-1", new Car("99조9999", new User("semi")));
 
-        assertThatThrownBy(() -> parkingSpaceRepository.insert(carNumber, parkingSpace))
+        assertThatThrownBy(() -> parkingSpaceRepository.parking(carNumber, parkingSpace))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContainingAll("carNumber is null");
     }
 
     @Test
-    void insert_parkingSpaceIsNull_throwIllegalArgumentException() {
+    void parking_parkingSpaceIsNull_throwIllegalArgumentException() {
         String carNumber = "99조9999";
         ParkingSpace parkingSpace = null;
 
-        assertThatThrownBy(() -> parkingSpaceRepository.insert(carNumber, parkingSpace))
+        assertThatThrownBy(() -> parkingSpaceRepository.parking(carNumber, parkingSpace))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContainingAll("parkingSpace is null");
     }
 
     @Test
-    void findByCode_carNumberIsNull_throwIllegalArgumentException(){
+    void findByCode_carNumberIsNull_throwIllegalArgumentException() {
         String carNumber = null;
 
         assertThatIllegalArgumentException()
-            .isThrownBy(()->parkingSpaceRepository.findByCarNumber(carNumber))
+            .isThrownBy(() -> parkingSpaceRepository.findByCarNumber(carNumber))
             .withMessageContaining("carNumber is null");
     }
 
+    @DisplayName("주차 공간 확보")
+    @Test
+    void reserveParkingSpace() {
+        String parkingLotCode = "A-1";
 
+        String number = "99조9999";
+        String userId = "semi";
+        User driver = new User(userId);
+        Car car = new Car(number, driver);
+
+        ParkingSpace result = parkingSpaceRepository.reserveParkingSpace(parkingLotCode, car);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getCode()).isEqualTo(parkingLotCode);
+        assertThat(result.getCar()).isEqualTo(car);
+    }
+
+    @Test
+    void reserveParkingSpace_parkingLotCodeIsNull_throwIllegalArgumentException() {
+        String parkingLotCode = null;
+
+        String number = "99조9999";
+        String userId = "semi";
+        User driver = new User(userId);
+        Car car = new Car(number, driver);
+
+        assertThatIllegalArgumentException()
+            .isThrownBy(() -> parkingSpaceRepository.reserveParkingSpace(parkingLotCode, car))
+            .withMessageContaining("parkingLotCode is null");
+    }
+
+    @Test
+    void reserveParkingSpace_carIsNull_throwIllegalArgumentException() {
+        String parkingLotCode = "A-1";
+        Car car = null;
+
+        assertThatIllegalArgumentException()
+            .isThrownBy(() -> parkingSpaceRepository.reserveParkingSpace(parkingLotCode, car))
+            .withMessageContaining("car is null");
+    }
 }
