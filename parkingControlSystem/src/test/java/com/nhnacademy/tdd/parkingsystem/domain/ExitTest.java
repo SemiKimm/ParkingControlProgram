@@ -94,11 +94,9 @@ class ExitTest {
 
     @Test
     void settleParkingFee_parkingTimeIs2Days(){
-        Duration parkingTime = Duration.ofHours(6);
+        Duration parkingTime = Duration.ofDays(2);
 
         Money result = exit.settleParkingFee(parkingTime);
-        assertThat(result.getAmount()).isEqualTo(10_000L);
+        assertThat(result.getAmount()).isEqualTo(20_000L);
     }
-
-
 }

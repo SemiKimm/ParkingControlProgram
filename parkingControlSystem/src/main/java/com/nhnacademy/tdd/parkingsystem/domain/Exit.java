@@ -29,6 +29,9 @@ public class Exit {
         if (parkingFee.getAmount() > 10_000L) {
             parkingFee.setAmount(10_000L);
         }
+        if(parkingTime.compareTo(Duration.ofDays(1))>0){
+            parkingFee.setAmount(20_000L);
+        }
         return parkingFee;
     }
 }
