@@ -16,12 +16,14 @@ class ParkingLotTest {
     Parkable parkingLot;
     ParkingSpaceRepository parkingSpaces;
     Entrance entrance;
+    Exit exit;
 
     @BeforeEach
     void setUp() {
         parkingSpaces = mock(ParkingSpaceRepository.class);
         entrance = mock(Entrance.class);
-        parkingLot = new ParkingLot(parkingSpaces, entrance);
+        exit = mock(Exit.class);
+        parkingLot = new ParkingLot(parkingSpaces, entrance, exit);
     }
 
     @DisplayName("주차장에 차가 들어오면 번호판을 인식하고 주차한다.")
@@ -77,5 +79,38 @@ class ParkingLotTest {
 
         verify(entrance, never()).scan(car);
         verify(parkingSpaces,never()).reserveParkingSpace(parkingLotCode,car);
+    }
+
+    @Test
+    void exit(){
+        String parkingLotCode = "A-1";
+        String number = "99조9999";
+        String userId = "semi";
+        User driver = new User(userId);
+        Car car = new Car(number, driver);
+        ParkingSpace parkingSpace = new ParkingSpace(parkingLotCode, car);
+
+        Money money = new Money();
+
+        when(parkingSpaces.findByCarNumber(number)).thenReturn(parkingSpace);
+        when(exit.pay(car)).thenReturn(money);
+
+        User result = parkingLot.exit(number);
+
+        assertThat(result).isNotNull()
+            .isEqualTo(driver);
+
+        verify(parkingSpaces).findByCarNumber(number);
+        verify(exit).pay(car);
+        verify(parkingSpaces).delete(number);
+    }
+
+    @Test
+    void exit_carNumberIsNull_throwIllegalArgumentException(){
+        String carNumber = null;
+
+        assertThatThrownBy(() -> parkingLot.exit(carNumber))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContainingAll("carNumber is null");
     }
 }

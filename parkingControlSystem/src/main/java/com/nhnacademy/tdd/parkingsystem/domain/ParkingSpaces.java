@@ -35,4 +35,9 @@ public class ParkingSpaces implements ParkingSpaceRepository {
         }
         return new ParkingSpace(parkingLotCode, car);
     }
+
+    @Override
+    public void delete(String number) {
+        //TODO
+    }
 }

@@ -6,4 +6,6 @@ public interface ParkingSpaceRepository {
     ParkingSpace findByCarNumber(String carNumber);
 
     ParkingSpace reserveParkingSpace(String parkingLotCode, Car car);
+
+    void delete(String number);
 }

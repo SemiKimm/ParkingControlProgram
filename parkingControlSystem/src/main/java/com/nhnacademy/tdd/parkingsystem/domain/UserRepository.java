@@ -1,4 +1,11 @@
 package com.nhnacademy.tdd.parkingsystem.domain;
 
-public interface UserRepository {
+public class UserRepository {
+    public void insert(User result) {
+        //TODO
+    }
+
+    public void delete(User driver) {
+        //TODO
+    }
 }

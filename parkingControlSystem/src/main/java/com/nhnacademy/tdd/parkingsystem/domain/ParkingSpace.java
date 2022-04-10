@@ -16,4 +16,8 @@ public class ParkingSpace {
     public Car getCar() {
         return car;
     }
+
+    public User getUser() {
+        return car.getDriver();
+    }
 }

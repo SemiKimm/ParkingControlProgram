@@ -6,10 +6,11 @@ import com.nhnacademy.tdd.parkingsystem.domain.User;
 import com.nhnacademy.tdd.parkingsystem.domain.UserRepository;
 
 class ParkingSystem {
-    Parkable parkingLot;
-    UserRepository userRepository;
+    private final Parkable parkingLot;
+    private final UserRepository userRepository;
 
-    public ParkingSystem(Parkable parkingLot, UserRepository userRepository) {
+    public ParkingSystem(Parkable parkingLot,
+                         UserRepository userRepository) {
         this.parkingLot = parkingLot;
         this.userRepository = userRepository;
     }
@@ -19,6 +20,16 @@ class ParkingSystem {
             throw new IllegalArgumentException("no car");
         }
         User driver = parkingLot.enter(parkingLotCode, car);
+        userRepository.insert(driver);
+        return driver;
+    }
+
+    User comeOut(String carNumber) {
+        if(carNumber==null){
+            throw new IllegalArgumentException("carNumber is null");
+        }
+        User driver = parkingLot.exit(carNumber);
+        userRepository.delete(driver);
         return driver;
     }
 }
