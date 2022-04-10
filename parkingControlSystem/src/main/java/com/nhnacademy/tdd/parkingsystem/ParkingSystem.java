@@ -16,21 +16,19 @@ class ParkingSystem {
         this.userRepository = userRepository;
     }
 
-    User comeIn(Car car, String parkingLotCode, LocalTime parkingTime) {
+    void comeIn(Car car, String parkingLotCode, LocalTime parkingTime) {
         if(car==null){
             throw new IllegalArgumentException("no car");
         }
         User driver = parkingLot.enter(parkingLotCode, car, parkingTime);
         userRepository.insert(driver);
-        return driver;
     }
 
-    User comeOut(String carNumber, LocalTime endParkingTime) {
+    void comeOut(String carNumber, LocalTime endParkingTime) {
         if(carNumber==null){
             throw new IllegalArgumentException("carNumber is null");
         }
         User driver = parkingLot.exit(carNumber, endParkingTime);
         userRepository.delete(driver);
-        return driver;
     }
 }

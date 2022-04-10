@@ -1,6 +1,5 @@
 package com.nhnacademy.tdd.parkingsystem;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -45,13 +44,10 @@ class ParkingSystemTest {
 
         when(parkingLot.enter(parkingLotCode, car, startParkingTime)).thenReturn(driver);
 
-        User result = parkingSystem.comeIn(car, parkingLotCode, startParkingTime);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getUserId()).isEqualTo(userId);
+        parkingSystem.comeIn(car, parkingLotCode, startParkingTime);
 
         verify(parkingLot).enter(parkingLotCode, car, startParkingTime);
-        verify(userRepository).insert(result);
+        verify(userRepository).insert(driver);
     }
 
     @Test
@@ -77,10 +73,7 @@ class ParkingSystemTest {
 
         when(parkingLot.exit(carNumber, endParkingTime)).thenReturn(driver);
 
-        User result = parkingSystem.comeOut(carNumber, endParkingTime);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getUserId().equals(userId)).isTrue();
+        parkingSystem.comeOut(carNumber, endParkingTime);
 
         verify(parkingLot).exit(carNumber, endParkingTime);
         verify(userRepository).delete(driver);
