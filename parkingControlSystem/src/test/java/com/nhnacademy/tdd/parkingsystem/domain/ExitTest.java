@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.nhnacademy.tdd.parkingsystem.exception.LackMoneyException;
+import java.time.Duration;
+import java.time.LocalTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +19,10 @@ class ExitTest {
 
     @Test
     void pay() throws LackMoneyException {
-        int parkingTime = 60*24;
+        LocalTime startParkingTime = LocalTime.of(14, 30, 0);
+        LocalTime endParkingTime = LocalTime.of(14, 30, 1);
+        Duration parkingTime = Duration.between(startParkingTime,endParkingTime);
+
         String number = "99조9999";
         String userId = "semi";
         Money money = new Money(10_000);
@@ -27,38 +32,73 @@ class ExitTest {
         Money result = exit.pay(car, parkingTime);
 
         assertThat(result).isNotNull();
-        assertThat(result.getAmount()).isEqualTo(10_000L);
+        assertThat(result.getAmount()).isEqualTo(1_000L);
     }
 
     @Test
-    void pay_driverMoneyIsNotEnough_throwLackMoneyException(){
-        int parkingTime = 60*24;
+    void pay_driverMoneyIsNotEnough_throwLackMoneyException() {
+        LocalTime startParkingTime = LocalTime.of(14, 30, 0);
+        LocalTime endParkingTime = LocalTime.of(20, 00, 00);
+        Duration parkingTime = Duration.between(startParkingTime,endParkingTime);
+
         String number = "99조9999";
         String userId = "semi";
         Money money = new Money(5_000);
         User driver = new User(userId, money);
         Car car = new Car(number, driver);
 
-        assertThatThrownBy(()->exit.pay(car,parkingTime))
+        assertThatThrownBy(() -> exit.pay(car, parkingTime))
             .isInstanceOf(LackMoneyException.class)
             .hasMessageContainingAll("money is not enough");
     }
 
     @Test
-    void settleParkingFee(){
-        long thirtyMin = 30;
-        long fiftyMin = 50;
-        long oneHourOneMin = 61;
-        long sixHour = 60 * 6;
+    void settleParkingFee_parkingTimeIsThirty() {
+        Duration parkingTime = Duration.ofMinutes(30);
 
-        Money thirtyMinResult = exit.settleParkingFee(thirtyMin);
-        Money fiftyMinResult = exit.settleParkingFee(fiftyMin);
-        Money oneHourOneMinResult = exit.settleParkingFee(oneHourOneMin);
-        Money sixHourResult = exit.settleParkingFee(sixHour);
-
-        assertThat(thirtyMinResult.getAmount()).isEqualTo(1_000L);
-        assertThat(fiftyMinResult.getAmount()).isEqualTo(2_000L);
-        assertThat(oneHourOneMinResult.getAmount()).isEqualTo(3_000L);
-        assertThat(sixHourResult.getAmount()).isEqualTo(10_000L);
+        Money result = exit.settleParkingFee(parkingTime);
+        assertThat(result.getAmount()).isEqualTo(1_000L);
     }
+
+    @Test
+    void settleParkingFee_parkingTimePlusTen(){
+        Duration parkingTime = Duration.ofMinutes(30).plusSeconds(1);
+
+        Money result = exit.settleParkingFee(parkingTime);
+        assertThat(result.getAmount()).isEqualTo(1_500L);
+    }
+
+    @Test
+    void settleParkingFee_parkingTimeIsFiftyMin(){
+        Duration parkingTime = Duration.ofMinutes(50);
+
+        Money result = exit.settleParkingFee(parkingTime);
+        assertThat(result.getAmount()).isEqualTo(2_000L);
+    }
+
+    @Test
+    void settleParkingFee_parkingTimeIsOneHourOneMin(){
+        Duration parkingTime = Duration.ofHours(1).plusMinutes(1);
+
+        Money result = exit.settleParkingFee(parkingTime);
+        assertThat(result.getAmount()).isEqualTo(3_000L);
+    }
+
+    @Test
+    void settleParkingFee_parkingTimeIsSixHours(){
+        Duration parkingTime = Duration.ofHours(6);
+
+        Money result = exit.settleParkingFee(parkingTime);
+        assertThat(result.getAmount()).isEqualTo(10_000L);
+    }
+
+    @Test
+    void settleParkingFee_parkingTimeIs2Days(){
+        Duration parkingTime = Duration.ofHours(6);
+
+        Money result = exit.settleParkingFee(parkingTime);
+        assertThat(result.getAmount()).isEqualTo(10_000L);
+    }
+
+
 }

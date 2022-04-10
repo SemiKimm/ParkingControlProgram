@@ -1,7 +1,12 @@
 package com.nhnacademy.tdd.parkingsystem.domain;
 
-public interface Parkable {
-    User enter(String parkingLotCode, Car car, int parkingTime);
+import java.time.Duration;
+import java.time.LocalTime;
 
-    User exit(String carNumber);
+public interface Parkable {
+    User enter(String parkingLotCode, Car car, LocalTime parkingTime);
+
+    User exit(String carNumber, LocalTime endParkingTime);
+
+    Duration calculateParkingTime(ParkingSpace parkingSpace, LocalTime endParkingTime);
 }

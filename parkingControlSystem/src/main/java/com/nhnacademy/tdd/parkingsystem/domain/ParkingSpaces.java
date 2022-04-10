@@ -1,5 +1,6 @@
 package com.nhnacademy.tdd.parkingsystem.domain;
 
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class ParkingSpaces implements ParkingSpaceRepository {
     }
 
     @Override
-    public ParkingSpace reserveParkingSpace(String parkingLotCode, Car car, int parkingTime) {
+    public ParkingSpace reserveParkingSpace(String parkingLotCode, Car car, LocalTime parkingTime) {
         if (parkingLotCode == null) {
             throw new IllegalArgumentException("parkingLotCode is null");
         }

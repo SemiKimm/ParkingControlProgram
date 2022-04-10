@@ -13,6 +13,7 @@ import com.nhnacademy.tdd.parkingsystem.domain.Money;
 import com.nhnacademy.tdd.parkingsystem.domain.Parkable;
 import com.nhnacademy.tdd.parkingsystem.domain.User;
 import com.nhnacademy.tdd.parkingsystem.domain.UserRepository;
+import java.time.LocalTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,16 +41,16 @@ class ParkingSystemTest {
         User driver = new User(userId, money);
         Car car = new Car(number, driver);
 
-        int parkingTime = 30;
+        LocalTime startParkingTime = LocalTime.of(14,00,00);
 
-        when(parkingLot.enter(parkingLotCode, car, parkingTime)).thenReturn(driver);
+        when(parkingLot.enter(parkingLotCode, car, startParkingTime)).thenReturn(driver);
 
-        User result = parkingSystem.comeIn(car, parkingLotCode, parkingTime);
+        User result = parkingSystem.comeIn(car, parkingLotCode, startParkingTime);
 
         assertThat(result).isNotNull();
         assertThat(result.getUserId()).isEqualTo(userId);
 
-        verify(parkingLot).enter(parkingLotCode, car, parkingTime);
+        verify(parkingLot).enter(parkingLotCode, car, startParkingTime);
         verify(userRepository).insert(result);
     }
 
@@ -57,12 +58,12 @@ class ParkingSystemTest {
     void comeIn_carIsNull_throwsIllegalArgumentException(){
         String parkingLotCode = "A-1";
         Car car = null;
-        int parkingTime = 30;
-        assertThatThrownBy(()->parkingSystem.comeIn(car, parkingLotCode, parkingTime))
+        LocalTime startParkingTime = LocalTime.of(14,00,00);
+        assertThatThrownBy(()->parkingSystem.comeIn(car, parkingLotCode, startParkingTime))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContainingAll("no car");
 
-        verify(parkingLot,never()).enter(parkingLotCode, car, parkingTime);
+        verify(parkingLot,never()).enter(parkingLotCode, car, startParkingTime);
     }
 
     @DisplayName("주차장에서 차가 나간다.")
@@ -72,25 +73,27 @@ class ParkingSystemTest {
         String userId = "semi";
         Money money = new Money(10_000L);
         User driver = new User(userId, money);
-        when(parkingLot.exit(carNumber)).thenReturn(driver);
+        LocalTime endParkingTime = LocalTime.of(14,30,0);
 
-        User result = parkingSystem.comeOut(carNumber);
+        when(parkingLot.exit(carNumber, endParkingTime)).thenReturn(driver);
+
+        User result = parkingSystem.comeOut(carNumber, endParkingTime);
 
         assertThat(result).isNotNull();
         assertThat(result.getUserId().equals(userId)).isTrue();
 
-        verify(parkingLot).exit(carNumber);
+        verify(parkingLot).exit(carNumber, endParkingTime);
         verify(userRepository).delete(driver);
     }
 
     @Test
     void comeOut_carNumberIsNull_throwsIllegalArgumentException(){
         String carNumber = null;
-
+        LocalTime endParkingTime = LocalTime.of(14,30,0);
         assertThatIllegalArgumentException()
-            .isThrownBy(()->parkingSystem.comeOut(carNumber))
+            .isThrownBy(()->parkingSystem.comeOut(carNumber, endParkingTime))
             .withMessageContaining("carNumber is null");
 
-        verify(parkingLot,never()).exit(carNumber);
+        verify(parkingLot,never()).exit(carNumber, endParkingTime);
     }
 }
