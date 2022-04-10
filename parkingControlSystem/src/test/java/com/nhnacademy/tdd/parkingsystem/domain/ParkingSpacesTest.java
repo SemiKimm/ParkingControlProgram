@@ -19,12 +19,14 @@ class ParkingSpacesTest {
     @DisplayName("주차장에 차가 주차될때 repository 에는 차번호와 차량이 주차된 주차공간이 저장된다.")
     @Test
     void parkingAndFindByCarNumber() {
+        int parkingTime = 30;
         String code = "A-1";
         String number = "99조9999";
         String userId = "semi";
-        User driver = new User(userId);
+        Money money = new Money(10_000L);
+        User driver = new User(userId, money);
         Car car = new Car(number, driver);
-        ParkingSpace parkingSpace = new ParkingSpace(code, car);
+        ParkingSpace parkingSpace = new ParkingSpace(code, car, parkingTime);
         parkingSpaceRepository.parking(number, parkingSpace);
 
         ParkingSpace result = parkingSpaceRepository.findByCarNumber(number);
@@ -35,7 +37,10 @@ class ParkingSpacesTest {
     @Test
     void parking_carNumberIsNull_throwIllegalArgumentException() {
         String carNumber = null;
-        ParkingSpace parkingSpace = new ParkingSpace("A-1", new Car("99조9999", new User("semi")));
+        int parkingTime = 30;
+        Money money = new Money(10_000L);
+        ParkingSpace parkingSpace =
+            new ParkingSpace("A-1", new Car("99조9999", new User("semi", money)), parkingTime);
 
         assertThatThrownBy(() -> parkingSpaceRepository.parking(carNumber, parkingSpace))
             .isInstanceOf(IllegalArgumentException.class)
@@ -68,10 +73,14 @@ class ParkingSpacesTest {
 
         String number = "99조9999";
         String userId = "semi";
-        User driver = new User(userId);
+        Money money = new Money(10_000L);
+        User driver = new User(userId, money);
         Car car = new Car(number, driver);
 
-        ParkingSpace result = parkingSpaceRepository.reserveParkingSpace(parkingLotCode, car);
+        int parkingTime = 30;
+
+        ParkingSpace result =
+            parkingSpaceRepository.reserveParkingSpace(parkingLotCode, car, parkingTime);
 
         assertThat(result).isNotNull();
         assertThat(result.getCode()).isEqualTo(parkingLotCode);
@@ -84,11 +93,15 @@ class ParkingSpacesTest {
 
         String number = "99조9999";
         String userId = "semi";
-        User driver = new User(userId);
+        Money money = new Money(10_000L);
+        User driver = new User(userId, money);
         Car car = new Car(number, driver);
 
+        int parkingTime = 30;
+
         assertThatIllegalArgumentException()
-            .isThrownBy(() -> parkingSpaceRepository.reserveParkingSpace(parkingLotCode, car))
+            .isThrownBy(
+                () -> parkingSpaceRepository.reserveParkingSpace(parkingLotCode, car, parkingTime))
             .withMessageContaining("parkingLotCode is null");
     }
 
@@ -96,9 +109,11 @@ class ParkingSpacesTest {
     void reserveParkingSpace_carIsNull_throwIllegalArgumentException() {
         String parkingLotCode = "A-1";
         Car car = null;
+        int parkingTime = 30;
 
         assertThatIllegalArgumentException()
-            .isThrownBy(() -> parkingSpaceRepository.reserveParkingSpace(parkingLotCode, car))
+            .isThrownBy(
+                () -> parkingSpaceRepository.reserveParkingSpace(parkingLotCode, car, parkingTime))
             .withMessageContaining("car is null");
     }
 }

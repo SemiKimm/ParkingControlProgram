@@ -15,11 +15,11 @@ class ParkingSystem {
         this.userRepository = userRepository;
     }
 
-    User comeIn(Car car, String parkingLotCode) {
+    User comeIn(Car car, String parkingLotCode, int parkingTime) {
         if(car==null){
             throw new IllegalArgumentException("no car");
         }
-        User driver = parkingLot.enter(parkingLotCode, car);
+        User driver = parkingLot.enter(parkingLotCode, car, parkingTime);
         userRepository.insert(driver);
         return driver;
     }

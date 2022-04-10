@@ -1,5 +1,7 @@
 package com.nhnacademy.tdd.parkingsystem.domain;
 
+import com.nhnacademy.tdd.parkingsystem.exception.LackMoneyException;
+
 public class ParkingLot implements Parkable {
     private final ParkingSpaceRepository parkingSpaces;
     private final Entrance entrance;
@@ -13,7 +15,7 @@ public class ParkingLot implements Parkable {
     }
 
     @Override
-    public User enter(String parkingLotCode, Car car) {
+    public User enter(String parkingLotCode, Car car, int parkingTime) {
         if(parkingLotCode==null){
             throw new IllegalArgumentException("no parkingLotCode");
         }
@@ -22,7 +24,7 @@ public class ParkingLot implements Parkable {
         }
         User driver = car.getDriver();
         String carNumber = entrance.scan(car);
-        ParkingSpace parkingSpace = parkingSpaces.reserveParkingSpace(parkingLotCode, car);
+        ParkingSpace parkingSpace = parkingSpaces.reserveParkingSpace(parkingLotCode, car, parkingTime);
 
         parkingSpaces.parking(carNumber, parkingSpace);
 
@@ -38,7 +40,11 @@ public class ParkingLot implements Parkable {
 
         Car car = parkingSpace.getCar();
         User driver = parkingSpace.getUser();
-        exit.pay(car);
+        try {
+            exit.pay(car, parkingSpace.getParkingTime());
+        } catch (LackMoneyException e) {
+            System.out.println(e.getMessage());
+        }
         parkingSpaces.delete(carNumber);
 
         return driver;

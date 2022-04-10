@@ -7,6 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.nhnacademy.tdd.parkingsystem.exception.LackMoneyException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,21 +34,25 @@ class ParkingLotTest {
 
         String number = "99조9999";
         String userId = "semi";
-        User driver = new User(userId);
+        Money money = new Money(10_000L);
+        User driver = new User(userId, money);
         Car car = new Car(number, driver);
 
-        ParkingSpace parkingSpace = new ParkingSpace(parkingLotCode, car);
+        int parkingTime = 30;
+
+        ParkingSpace parkingSpace = new ParkingSpace(parkingLotCode, car, parkingTime);
 
         when(entrance.scan(car)).thenReturn(number);
-        when(parkingSpaces.reserveParkingSpace(parkingLotCode, car)).thenReturn(parkingSpace);
+        when(parkingSpaces.reserveParkingSpace(parkingLotCode, car, parkingTime)).thenReturn(
+            parkingSpace);
 
-        User result = parkingLot.enter(parkingLotCode, car);
+        User result = parkingLot.enter(parkingLotCode, car, parkingTime);
 
         assertThat(result).isNotNull();
         assertThat(result.getUserId()).isEqualTo(userId);
 
         verify(entrance).scan(car);
-        verify(parkingSpaces).reserveParkingSpace(parkingLotCode,car);
+        verify(parkingSpaces).reserveParkingSpace(parkingLotCode, car, parkingTime);
         verify(parkingSpaces).parking(number, parkingSpace);
     }
 
@@ -56,44 +61,51 @@ class ParkingLotTest {
         String parkingLotCode = "A-1";
         Car car = null;
 
-        assertThatThrownBy(() -> parkingLot.enter(parkingLotCode, car))
+        int parkingTime = 30;
+
+        assertThatThrownBy(() -> parkingLot.enter(parkingLotCode, car, parkingTime))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContainingAll("no car");
 
         verify(entrance, never()).scan(car);
-        verify(parkingSpaces,never()).reserveParkingSpace(parkingLotCode,car);
+        verify(parkingSpaces, never()).reserveParkingSpace(parkingLotCode, car, parkingTime);
     }
 
     @Test
-    void enter_parkingLotCodeIsNull_enter_carIsNull_throwsIllegalArgumentException(){
+    void enter_parkingLotCodeIsNull_enter_carIsNull_throwsIllegalArgumentException() {
         String parkingLotCode = null;
 
         String number = "99조9999";
         String userId = "semi";
-        User driver = new User(userId);
+        Money money = new Money(10_000L);
+        User driver = new User(userId, money);
         Car car = new Car(number, driver);
 
-        assertThatThrownBy(() -> parkingLot.enter(parkingLotCode, car))
+        int parkingTime = 30;
+
+        assertThatThrownBy(() -> parkingLot.enter(parkingLotCode, car, parkingTime))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContainingAll("no parkingLotCode");
 
         verify(entrance, never()).scan(car);
-        verify(parkingSpaces,never()).reserveParkingSpace(parkingLotCode,car);
+        verify(parkingSpaces, never()).reserveParkingSpace(parkingLotCode, car, parkingTime);
     }
 
     @Test
-    void exit(){
+    void exit() throws LackMoneyException {
+        int parkingTime = 30;
         String parkingLotCode = "A-1";
         String number = "99조9999";
         String userId = "semi";
-        User driver = new User(userId);
+        Money money = new Money(10_000L);
+        User driver = new User(userId, money);
         Car car = new Car(number, driver);
-        ParkingSpace parkingSpace = new ParkingSpace(parkingLotCode, car);
+        ParkingSpace parkingSpace = new ParkingSpace(parkingLotCode, car, parkingTime);
 
-        Money money = new Money();
+        Money parkingFee = new Money(1_000);
 
         when(parkingSpaces.findByCarNumber(number)).thenReturn(parkingSpace);
-        when(exit.pay(car)).thenReturn(money);
+        when(exit.pay(car, parkingTime)).thenReturn(parkingFee);
 
         User result = parkingLot.exit(number);
 
@@ -101,12 +113,12 @@ class ParkingLotTest {
             .isEqualTo(driver);
 
         verify(parkingSpaces).findByCarNumber(number);
-        verify(exit).pay(car);
+        verify(exit).pay(car, parkingTime);
         verify(parkingSpaces).delete(number);
     }
 
     @Test
-    void exit_carNumberIsNull_throwIllegalArgumentException(){
+    void exit_carNumberIsNull_throwIllegalArgumentException() {
         String carNumber = null;
 
         assertThatThrownBy(() -> parkingLot.exit(carNumber))

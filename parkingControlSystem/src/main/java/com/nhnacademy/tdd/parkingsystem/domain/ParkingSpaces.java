@@ -26,14 +26,14 @@ public class ParkingSpaces implements ParkingSpaceRepository {
     }
 
     @Override
-    public ParkingSpace reserveParkingSpace(String parkingLotCode, Car car) {
+    public ParkingSpace reserveParkingSpace(String parkingLotCode, Car car, int parkingTime) {
         if (parkingLotCode == null) {
             throw new IllegalArgumentException("parkingLotCode is null");
         }
         if (car == null) {
             throw new IllegalArgumentException("car is null");
         }
-        return new ParkingSpace(parkingLotCode, car);
+        return new ParkingSpace(parkingLotCode, car, parkingTime);
     }
 
     @Override

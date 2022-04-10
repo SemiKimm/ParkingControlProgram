@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.nhnacademy.tdd.parkingsystem.domain.Car;
+import com.nhnacademy.tdd.parkingsystem.domain.Money;
 import com.nhnacademy.tdd.parkingsystem.domain.Parkable;
 import com.nhnacademy.tdd.parkingsystem.domain.User;
 import com.nhnacademy.tdd.parkingsystem.domain.UserRepository;
@@ -35,17 +36,20 @@ class ParkingSystemTest {
         String parkingLotCode = "A-1";
         String number = "99조9999";
         String userId = "semi";
-        User driver = new User(userId);
+        Money money = new Money(10_000L);
+        User driver = new User(userId, money);
         Car car = new Car(number, driver);
 
-        when(parkingLot.enter(parkingLotCode, car)).thenReturn(driver);
+        int parkingTime = 30;
 
-        User result = parkingSystem.comeIn(car, parkingLotCode);
+        when(parkingLot.enter(parkingLotCode, car, parkingTime)).thenReturn(driver);
+
+        User result = parkingSystem.comeIn(car, parkingLotCode, parkingTime);
 
         assertThat(result).isNotNull();
         assertThat(result.getUserId()).isEqualTo(userId);
 
-        verify(parkingLot).enter(parkingLotCode, car);
+        verify(parkingLot).enter(parkingLotCode, car, parkingTime);
         verify(userRepository).insert(result);
     }
 
@@ -53,12 +57,12 @@ class ParkingSystemTest {
     void comeIn_carIsNull_throwsIllegalArgumentException(){
         String parkingLotCode = "A-1";
         Car car = null;
-
-        assertThatThrownBy(()->parkingSystem.comeIn(car, parkingLotCode))
+        int parkingTime = 30;
+        assertThatThrownBy(()->parkingSystem.comeIn(car, parkingLotCode, parkingTime))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContainingAll("no car");
 
-        verify(parkingLot,never()).enter(parkingLotCode, car);
+        verify(parkingLot,never()).enter(parkingLotCode, car, parkingTime);
     }
 
     @DisplayName("주차장에서 차가 나간다.")
@@ -66,7 +70,8 @@ class ParkingSystemTest {
     void comeOut(){
         String carNumber = "99조9999";
         String userId = "semi";
-        User driver = new User(userId);
+        Money money = new Money(10_000L);
+        User driver = new User(userId, money);
         when(parkingLot.exit(carNumber)).thenReturn(driver);
 
         User result = parkingSystem.comeOut(carNumber);

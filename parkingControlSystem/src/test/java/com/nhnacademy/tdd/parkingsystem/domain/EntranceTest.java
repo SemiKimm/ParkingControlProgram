@@ -2,7 +2,6 @@ package com.nhnacademy.tdd.parkingsystem.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +21,8 @@ class EntranceTest {
     void scan() {
         String number = "99조 9999";
         String userId = "semi";
-        User driver = new User(userId);
+        Money money = new Money(10_000L);
+        User driver = new User(userId, money);
         Car car = new Car(number,driver);
 
         String result = entrance.scan(car);
